@@ -172,6 +172,11 @@ static pthread_mutex_t mx_nb = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mx_wpastats = PTHREAD_MUTEX_INITIALIZER;
 static ac_cpuset_t * cpuset = NULL;
 
+int skip_crack = 0;
+int saved_skip_cache = 1;
+
+
+
 typedef struct
 {
 	uint8_t mode;
@@ -635,6 +640,18 @@ static int parse_ivs2(struct AP_info * ap_cur,
 	return (0);
 }
 
+void write_stdin_skip()
+{
+     if (skip_crack != 1)
+     {
+	FILE *pf;
+	pf = fopen(".count", "w+");
+
+	fprintf(pf, "%d", (int)nb_tried-100);// untuk jaga" jika ada key terlewat(mengulangi)
+	fclose(pf);
+     }
+}
+
 static __attribute__((noinline)) void clean_exit(int ret)
 {
 	int i = 0;
@@ -648,6 +665,9 @@ static __attribute__((noinline)) void clean_exit(int ret)
 		if (!opt.is_quiet)
 		{
 			printf("\nQuitting aircrack-ng...\n");
+
+			write_stdin_skip();
+
 			fflush(stdout);
 		}
 
@@ -3723,6 +3743,7 @@ inner_bruteforcer_thread_start:
 
 /* display the current wpa key info, matrix-like */
 
+
 static void show_wpa_stats(char * key,
 						   int keylen,
 						   unsigned char pmk[32],
@@ -3793,16 +3814,43 @@ static void show_wpa_stats(char * key,
 		textcolor_fg(TEXT_YELLOW);
 	}
 
+
 	if (opt.stdin_dict)
 	{
 		moveto(20, 5);
-		printf("[%02d:%02d:%02d] %zd keys tested "
+
+		if (et_h == saved_skip_cache) //write cache_skip every 1 hours
+		{
+			saved_skip_cache += 1;
+			write_stdin_skip();
+
+			printf("[%02d:%02d:%02d] %zd keys %d tested:\033[1;31mwrite cache\e[1;0m "
+			   "(%2.2f k/s) ",
+			   et_h,
+			   et_m,
+			   et_s,
+			   nb_tried,
+			   saved_skip_cache,
+			   ksec);
+		}
+		else if (skip_crack == 1) {
+			printf("[%02d:%02d:%02d] %zd keys tested:\033[1;31mskip\e[1;0m "
 			   "(%2.2f k/s) ",
 			   et_h,
 			   et_m,
 			   et_s,
 			   nb_tried,
 			   ksec);
+		}
+		else {
+			printf("[%02d:%02d:%02d] %zd keys tested:\033[1;32mrun\e[1;0m "
+			   "(%2.2f k/s) ",
+			   et_h,
+			   et_m,
+			   et_s,
+			   nb_tried,
+			   ksec);
+		}
 	}
 	else
 	{
@@ -4046,6 +4094,9 @@ static THREAD_ENTRY(crack_wpa_thread)
 	int i;
 	int j;
 
+
+	//init or oncreate
+
 	int nparallel = dso_ac_crypto_engine_simd_width();
 
 	data = (struct WPA_data *) arg;
@@ -4079,12 +4130,32 @@ static THREAD_ENTRY(crack_wpa_thread)
 	printf("Thread # %d starting...\n", threadid);
 #endif
 
+
+	//get cache for resume
+	char line[128];
+    FILE *fca = fopen(".count", "r");
+    if (!fca) {
+        printf("PLEASE CREATE FILE [.count]\n");
+        exit(1);
+    }
+    if (!fgets(line, sizeof(line), fca))
+    {
+        printf("error readin!\n");
+        exit(1);
+    }
+
+    fclose(fca);
+    int cache = atoi(line);
+
+    
+
+
 	bool done = false;
 	while (!done) // Continue until HAZARD value seen.
 	{
 		memset(keys, 0, sizeof(keys));
 
-		for (j = 0; !done && j < nparallel; ++j)
+		for (j=0; !done && j<nparallel; ++j)
 		{
 			uint8_t * our_key = keys[j].v;
 			i = 0;
@@ -4106,12 +4177,21 @@ static THREAD_ENTRY(crack_wpa_thread)
 			} while ((size_t) i < MIN_WPA_PASSPHRASE_LEN);
 
 			keys[j].length = (uint32_t) i;
+		
+			if ((int)nb_tried <= cache) {
+	    		skip_crack = 1;
+			} else {
+				skip_crack = 0;
+			}
+
 #ifdef XDEBUG
-			printf("%lu: GOT %p: %s\n", pthread_self(), our_key, our_key);
+			printf("%lu: GOT %d: %d : %d\n", pthread_self(), cache, (int)nb_tried, skip_crack); //our_key: stdin
 #endif
 		}
 
-		if (unlikely((j = dso_ac_crypto_engine_wpa_crack(&engine,
+		if (skip_crack != 1) {
+			//printf("zzzzzzzzz\n");
+			if (unlikely((j = dso_ac_crypto_engine_wpa_crack(&engine,
 														 keys,
 														 ap->wpa.eapol,
 														 ap->wpa.eapol_size,
@@ -4121,17 +4201,19 @@ static THREAD_ENTRY(crack_wpa_thread)
 														 nparallel,
 														 threadid))
 					 >= 0))
-		{
+			{
 #ifdef XDEBUG
-			printf("%d - %lu FOUND IT AT %d %p !\n",
+				printf("%d - %lu FOUND IT AT %d %p !\n",
 				   threadid,
 				   pthread_self(),
 				   j,
 				   keys[j].v);
 #endif
-			crack_wpa_successfully_cracked(
-				data, keys, mic, nparallel, threadid, j);
+				crack_wpa_successfully_cracked(
+					data, keys, mic, nparallel, threadid, j);
+			}
 		}
+
 
 		increment_passphrase_counts(keys, nparallel);
 
@@ -5936,6 +6018,8 @@ int main(int argc, char * argv[])
 	setsid();
 
 	memset(&opt, 0, sizeof(opt));
+
+
 
 	rand_init();
 
