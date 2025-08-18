@@ -1,0 +1,19 @@
+add without saved if skip
+
+
+penambahan fitur save/restore jika pakai crunch(stdin), konsepnya
+saat aircrack mulai jalan dia akan menyimpan text `.count` setiap satu jam
+lalu saat aircrack dijalankan ulang otomatis dia akan skip_crack .count yang lalu(restore)
+alias dia akan mengunggu crunch menghasilkan key tapi aircrack tidak memakainya
+sampai .count tercapai. Fitur ini berguna jika wordlist sangat besar tapi
+penyimpanan terbatas alias pakai stdin dari crunch.
+
+#examples
+$ echo 0 > .count
+$ crunch 8 8 1234567890 --stdout | aircrack-ng -w- sofi.cap -e SOFI
+
+#Note
+untuk restore jalankan crunch... lagi dengan isi .count tergantung saat run terakhir
+tulisan merah(skip): dia sedang mengunggu crunch generate key sampai .count tercapai
+tulisan hijau(run): mulai crack
+tulisan merah(write cache): save point cache ke .count setiap satu jam
