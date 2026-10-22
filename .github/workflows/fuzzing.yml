@@ -146,7 +146,7 @@ jobs:
 
           # lanjutkan corpus dari sesi sebelumnya
           if [ -f "prev/.count" ]; then
-            cp "prev/.count" .
+            cp "prev/count.txt" .count
           else
             echo 0 > .count
           fi
@@ -172,8 +172,7 @@ jobs:
         run: |
           mkdir -p output
 
-          cp Readme output
-          cp .count output
+          cp .count output/count.txt
 
 
       - name: Upload artifact
