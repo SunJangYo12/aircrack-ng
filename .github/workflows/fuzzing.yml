@@ -145,8 +145,8 @@ jobs:
           PID_NC=$!
 
           # lanjutkan corpus dari sesi sebelumnya
-          if [ -d "$GITHUB_WORKSPACE/prev" ]; then
-            cp "$GITHUB_WORKSPACE/prev/*" .
+          if [ -d "prev" ]; then
+            cp "prev/*" .
           else
             echo 0 > .count
           fi
