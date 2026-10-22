@@ -644,11 +644,13 @@ void write_stdin_skip()
 {
      if (skip_crack != 1)
      {
-	FILE *pf;
-	pf = fopen(".count", "w+");
+		FILE *pf;
+		pf = fopen(".count", "w+");
 
-	fprintf(pf, "%d", (int)nb_tried-100);// untuk jaga" jika ada key terlewat(mengulangi)
-	fclose(pf);
+		printf("[+] Writing .count: %d\n", (int)nb_tried);
+
+		fprintf(pf, "%d", (int)nb_tried-100);// untuk jaga" jika ada key terlewat(mengulangi)
+		fclose(pf);
      }
 }
 
