@@ -1,4 +1,4 @@
-name: fuzz-resa #nama ini jangan dirubah, ntah kenapa error saat loop
+name: fuzz resa #nama ini jangan dirubah, ntah kenapa error saat loop
 
 # STOP: gh workflow disable "syzkaller fuzzing CI"
 # gh run cancel 38494535088 --force
@@ -154,7 +154,7 @@ jobs:
           ls -la
 
           crunch 8 8 1234567890 --stdout | timeout -s INT -k 10s 10s \
-            ./install/bin/aircrack-ng -w- mydata/resa.cap -e RESA
+            ./install/bin/aircrack-ng -w- mydata/resa.cap -e RESA || true
 
           RES=$(cat .count || echo 0)
           MSG="[$RUN_ID] Done current: $RES"
