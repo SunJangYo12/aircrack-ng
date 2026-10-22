@@ -1,4 +1,4 @@
-name: fuzz resa #nama ini jangan dirubah, ntah kenapa error saat loop
+name: fuzz-resa #nama ini jangan dirubah, ntah kenapa error saat loop
 
 # STOP: gh workflow disable "syzkaller fuzzing CI"
 # gh run cancel 38494535088 --force
