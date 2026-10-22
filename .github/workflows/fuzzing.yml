@@ -145,8 +145,8 @@ jobs:
           PID_NC=$!
 
           # lanjutkan corpus dari sesi sebelumnya
-          if [ -d "prev" ]; then
-            cp "prev/*" .
+          if [ -d "prev/.count" ]; then
+            cp "prev/.count" .
           else
             echo 0 > .count
           fi
