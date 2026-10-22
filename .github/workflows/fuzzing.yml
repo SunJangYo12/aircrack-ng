@@ -155,7 +155,7 @@ jobs:
             echo "############### fuzzzzzz"
             ls -la
 
-            crunch 8 8 1234567890 --stdout | timeout -s INT -k 2m 30s \
+            crunch 8 8 1234567890 --stdout | timeout -s INT -k 10s 10s \
               ./install/bin/aircrack-ng -w- mydata/resa.cap -e RESA
 
             RES=$(cat .count || echo 0)
