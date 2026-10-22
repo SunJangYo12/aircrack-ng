@@ -12,6 +12,7 @@ on:
     branches: [cruch_resume]
     paths:
       - ".github/workflows/fuzzing.yml"
+      - "src/aircrack-ng/aircrack-ng.c"
   schedule:
     - cron: "0 */6 * * *"   # opsional, jaring pengaman kalau rantai putus
 
