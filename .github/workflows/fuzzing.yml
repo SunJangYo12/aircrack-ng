@@ -165,8 +165,8 @@ jobs:
             PID_NC=$!
 
             # lanjutkan corpus dari sesi sebelumnya
-            if [ -d "$GITHUB_WORKSPACE/prev/workdir" ]; then
-              cp "$GITHUB_WORKSPACE/prev/workdir/*" .
+            if [ -d "$GITHUB_WORKSPACE/prev" ]; then
+              cp "$GITHUB_WORKSPACE/prev/*" .
             else
               echo 0 > .count
             fi
@@ -191,7 +191,7 @@ jobs:
       - name: Collect artifacts
         if: always()
         run: |
-          mkdir -p output/workdir
+          mkdir -p output
 
           cp ~/mylog.txt output/ || true
           cp .count output/ || true
