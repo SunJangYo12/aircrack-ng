@@ -165,13 +165,7 @@ jobs:
           # bersihkan semua proses latar belakang
           kill $PID_NC 2>/dev/null || true
 
-
-
-      - name: Collect artifacts
-        if: always()
-        run: |
           mkdir -p output
-
           cp .count output/
 
 
