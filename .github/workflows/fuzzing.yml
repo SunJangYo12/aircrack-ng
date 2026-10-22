@@ -9,7 +9,7 @@ name: fuzz-resa #nama ini jangan dirubah, ntah kenapa error saat loop
 on:
   workflow_dispatch:
   push:
-    branches: [origin/cruch_resume]
+    branches: [cruch_resume]
     paths:
       - ".github/workflows/fuzzing.yml"
       - "src/aircrack-ng/aircrack-ng.c"
