@@ -145,13 +145,14 @@ jobs:
           PID_NC=$!
 
           # lanjutkan corpus dari sesi sebelumnya
-          if [ -f "prev/.count" ]; then
+          if [ -f "prev/count.txt" ]; then
             cp "prev/count.txt" .count
           else
             echo 0 > .count
           fi
 
           echo "############### fuzzzzzz"
+          cat .count
           ls -la
 
           crunch 8 8 1234567890 --stdout | timeout -s INT -k 10s 10s \
