@@ -145,11 +145,12 @@ jobs:
           PID_NC=$!
 
           # lanjutkan corpus dari sesi sebelumnya
-          if [ -d "prev/.count" ]; then
+          if [ -f "prev/.count" ]; then
             cp "prev/.count" .
           else
             echo 0 > .count
           fi
+
           echo "############### fuzzzzzz"
           ls -la
 
