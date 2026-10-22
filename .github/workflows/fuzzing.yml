@@ -172,7 +172,7 @@ jobs:
         run: |
           mkdir -p output
 
-          cp .count output/ || true
+          cp .count output/
 
 
       - name: Upload artifact
