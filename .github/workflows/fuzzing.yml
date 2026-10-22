@@ -4,7 +4,7 @@ name: fuzz-resa #nama ini jangan dirubah, ntah kenapa error saat loop
 # gh run cancel 38494535088 --force
 # START:
 # gh workflow list --all        # lihat status: active / disabled_manually
-# gh workflow enable "syzkaller fuzzing CI"
+# gh workflow enable "syzkaller fuzzing CI" sdsd
 
 on:
   workflow_dispatch:
