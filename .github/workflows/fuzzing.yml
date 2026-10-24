@@ -152,7 +152,7 @@ jobs:
           ls -la
 
           crunch 8 9 abcdefghijklmnopqrstuvwxyz --stdout | timeout -s INT -k 2m 2m \
-            ./aircrack-ng -w- mydata/resa.cap -e RESA | tee aircrack_output.log || true
+            ./aircrack-ng -w- mydata/resa.cap -e RESA | tee aircrack_output.log
 
           if grep -q "KEY FOUND!" aircrack_output.log; then
             FOUND_KEY=$(grep "KEY FOUND!" aircrack_output.log)
