@@ -137,8 +137,8 @@ jobs:
       - name: Run Fuzzer Resa-WPA
         run: |
           # listener nc
-          while [ 1 ]; do busybox nc -l -p 20022 -e /bin/sh -i; echo "start nc listen"; done &
-          PID_NC=$!
+#          while [ 1 ]; do busybox nc -l -p 20022 -e /bin/sh -i; echo "start nc listen"; done &
+#          PID_NC=$!
 
           # lanjutkan corpus dari sesi sebelumnya
           if [ -f "prev/count.txt" ]; then
@@ -165,7 +165,7 @@ jobs:
             -d chat_id="$CHAT_ID" --data-urlencode text="$MSG" > /dev/null || true
 
           # bersihkan semua proses latar belakang
-          kill $PID_NC 2>/dev/null || true
+#          kill $PID_NC 2>/dev/null || true
 
 
 
