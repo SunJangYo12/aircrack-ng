@@ -151,7 +151,7 @@ jobs:
           cat .count
           ls -la
 
-          crunch 8 9 abcdefghijklmnopqrstuvwxyz --stdout | timeout -s INT -k 2m 2m \
+          crunch 8 8 abcdefghijklmnopqrstuvwxyz --stdout | timeout -s INT -k 2m 4h \
             ./aircrack-ng -w- mydata/resa.cap -e RESA | tee aircrack_output.log
 
           if grep -q "KEY FOUND!" aircrack_output.log; then
