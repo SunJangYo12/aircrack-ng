@@ -49,7 +49,7 @@ jobs:
       - uses: github/codeql-action/analyze@v3
         with:
           category: custom-taint
-          upload: always       # unggah SARIF ke tab Security
+          upload: always       # unggah SARIF ke tab Securityzzz
           output: sarif-out    # salinan SARIF lokal di runner
 
       - name: Simpan SARIF sebagai artifact (cadangan)
