@@ -1,0 +1,60 @@
+name: CodeQL Taint
+
+on:
+  workflow_dispatch:          # jalankan manual dari tab Actions
+  push:
+    branches: [jin-codeql]  # ganti sesuai branch kerja Anda
+
+permissions:
+  contents: read
+  security-events: write      # wajib untuk upload SARIF
+  actions: read               # diperlukan di repo privat
+  packages: read              # untuk mengunduh pack query
+
+jobs:
+  analyze:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependensi
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential autoconf automake libtool pkg-config \
+            libssl-dev libnl-3-dev libnl-genl-3-dev libpcap-dev libsqlite3-dev \
+            libpcre2-dev zlib1g-dev ethtool
+
+      - name: Install dependensi pack query custom
+        run: |
+          # dibutuhkan agar codeql/cpp-all terselesaikan
+          # (init action biasanya melakukan ini sendiri; langkah ini hanya jaga-jaga)
+          echo "skip"
+
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: c-cpp
+          build-mode: manual
+          queries: ./my-queries/net-to-memcpy.ql
+          # kalau mau suite standar + query Anda:
+          # queries: security-extended, ./my-queries/net-to-memcpy.ql
+
+      - name: Build
+        run: |
+          autoreconf -i
+          ./configure
+          make -j"$(nproc)"
+
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: custom-taint
+          upload: always       # unggah SARIF ke tab Security
+          output: sarif-out    # salinan SARIF lokal di runner
+
+      - name: Simpan SARIF sebagai artifact (cadangan)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-results
+          path: sarif-out
